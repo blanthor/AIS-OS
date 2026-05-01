@@ -4,6 +4,8 @@ A free, MIT-licensed starter kit that turns Claude Code into your personal **AI 
 
 The kit personalizes itself to you via an `/onboard` interview, then gives you two recurring thinking skills (`/audit`, `/level-up`) to keep building leverage week over week.
 
+> **AIS-OS** stands for **AI Automation Society OS** — the way Nate designed this AIOS to be set up for members of his community, [AI Automation Society](https://www.skool.com/ai-automation-society). The kit is universal (it works for anyone), but the structure mirrors how AIS members run their own businesses on top of it.
+
 ---
 
 ## The litmus test
@@ -38,9 +40,9 @@ The kit teaches personal AIOS first. Everything scales from there.
 
 ## Two frameworks
 
-The kit teaches two complementary frameworks. **3Ms first, Four Cs second.** Without the brain rewire, the architecture is just a folder structure.
+The kit teaches two complementary frameworks. **Three Ms first, Four Cs second.** Without the brain rewire, the architecture is just a folder structure.
 
-### The 3Ms — operator brain (how you think)
+### The Three Ms — operator brain (how you think)
 
 | M | One-liner |
 |---|---|
@@ -63,6 +65,8 @@ Full breakdown in `references/3ms-framework.md`. The `/level-up` skill walks you
 
 **Brand line:** Context. Connections. Capabilities. Cadence.
 
+> *The Four Cs of an AIOS™ is a trademark of Nate Herk. © 2026 Nate Herk.*
+
 Dependency graph: Context is non-skippable. Connections + Capabilities can build in parallel. Cadence is last — don't automate workflows that don't work manually.
 
 ---
@@ -75,7 +79,7 @@ The kit is intentionally lean. Skills here are ideation prompts and thinking too
 |---|---|---|
 | `/onboard` | Setup wizard (one-time) | Day 1, immediately after clone. 7-question interview. Generates Day-1 file set + fills `CLAUDE.md`. |
 | `/audit` | Recurring thinking skill | Day 7, then weekly. Four-Cs gap report. Read-only. Watch the score climb. |
-| `/level-up` | Recurring thinking skill | Day 14, then weekly. 3Ms interview (Mindset → Method → Machine). One run = one shipped artifact. |
+| `/level-up` | Recurring thinking skill | Day 14, then weekly. Three Ms interview (Mindset → Method → Machine). One run = one shipped artifact. |
 
 `/audit` asks *"is the AIOS built right?"* (form). `/level-up` asks *"what business leverage am I missing?"* (function). They work in series — fix structure first, then capability planning becomes meaningful.
 
@@ -87,7 +91,7 @@ The kit is intentionally lean. Skills here are ideation prompts and thinking too
 2. **Open it in Claude Code** and run `/onboard`. Answer the 7 questions honestly. Voice samples must be pasted, not described. Takes ~15 minutes. Day-1 file set drops at the end.
 3. **Use it for a week.** Bring real questions. Make real decisions. Log them via `/decision` (or just append to `decisions/log.md`).
 4. **Day 7:** run `/audit`. Read the Four-Cs gap report. Pick one gap to close.
-5. **Day 14:** run `/level-up`. The 3Ms interview surfaces one automation worth building. Build it.
+5. **Day 14:** run `/level-up`. The Three Ms interview surfaces one automation worth building. Build it.
 6. **Week 3+:** weekly `/level-up` ritual. One shipped artifact per week.
 
 ---
@@ -120,26 +124,10 @@ See `EXPANSIONS.md` for what to add as you grow (`projects/`, `templates/`, `scr
 
 ---
 
-## The bar — a skill ships in AIS-OS only if it passes all 7
-
-This is the rubric for any skill that lands in the kit going forward (or anything you propose as a contribution):
-
-1. Universal (works for any business)
-2. MCP-light (runs with 0-1 MCPs)
-3. Fast value (visible output in <60 sec)
-4. Demoable in 90 sec on screen
-5. Non-overlapping with `/onboard`, `/audit`, `/level-up`, or other shipped skills
-6. AIOS-native (reads/writes your `CLAUDE.md`, context, decisions, or skill folder — not a generic prompt)
-7. Voice-safe (doesn't fake your voice on external content without a draft step)
-
-**Templates vs. skills:** if logic varies by user, it's a template you author via `/level-up`. If only data varies, it could ship as a kit skill — but the bar is high.
-
----
-
 ## License + attribution
 
 MIT License. © 2026 Nate Herk.
 
-The Three Ms of AI™ is a trademark of Nate Herk. The framework ships in this repo with attribution. Use freely; don't repackage as your own.
+The Three Ms of AI™ and The Four Cs of an AIOS™ are trademarks of Nate Herk. Both frameworks ship in this repo with attribution. Use freely; don't repackage as your own.
 
 The companion masterclass video walks you through the kit step by step. Link will land here once it ships.
