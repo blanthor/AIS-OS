@@ -4,13 +4,13 @@ Registry of every system your AIOS can reach. Filled by `/onboard` from Q4-Q7 an
 
 | # | Domain | Tool | Mechanism | Auth | Last checked |
 |---|---|---|---|---|---|
-| 1 | Revenue / Financials | _filled by /onboard_ | not yet connected | — | — |
-| 2 | Customer interactions | _filled by /onboard_ | not yet connected | — | — |
-| 3 | Calendar | _filled by /onboard_ | not yet connected | — | — |
-| 4 | Communication | _filled by /onboard_ | not yet connected | — | — |
-| 5 | Project / task tracking | _filled by /onboard_ | not yet connected | — | — |
-| 6 | Meeting intelligence | _filled by /onboard_ | not yet connected | — | — |
-| 7 | Knowledge / files | _filled by /onboard_ | not yet connected | — | — |
+| 1 | Revenue / Financials | Simplifi by Quicken | not yet connected | — | — |
+| 2 | Customer interactions | Gmail, LinkedIn, Upwork | cli (`gws`) · `key+ref` (Upwork) | Gmail: OS keyring · GCP project `ai-os-ralph` · Upwork: `.env` → `references/upwork-api.md` | 2026-06-01 |
+| 3 | Calendar | Google Calendar | cli (`gws`) | shared — see row 2 | 2026-06-01 |
+| 4 | Communication | Gmail, LinkedIn DMs | cli (`gws`) | shared — see row 2 | 2026-06-01 |
+| 5 | Project / task tracking | Bullet journal, Google Calendar, Windows Tasks | cli (`gws`) | shared — see row 2 | 2026-06-01 |
+| 6 | Meeting intelligence | Otter.ai or Fireflies (planned) | not yet connected | — | — |
+| 7 | Knowledge / files | Obsidian, Google Drive | cli (`gws`) | shared — see row 2 | 2026-06-01 |
 
 **Mechanism options:** `mcp` (MCP server), `script` (Python/Bash hitting an API, in `scripts/`), `export` (CSV/JSON dump pipeline), `key+ref` (`.env` key + `references/{tool}-api.md` guide), `not yet connected`.
 
