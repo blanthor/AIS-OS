@@ -40,8 +40,10 @@ c:\code\AIS-OS\projects\
       meeting-notes\
     workflows\
     tools\
+    temp\
+      outputs\
+      resources\
     deliverables\
-    .tmp\
 ```
 
 ### Step 4 — Write template files
@@ -137,12 +139,53 @@ Write these four files with the content below, substituting `{Client Name}` and 
 
 ```
 .env
-.tmp/
+temp/
 *.log
 __pycache__/
 node_modules/
 credentials.json
 token.json
+```
+
+---
+
+**`c:\code\AIS-OS\projects\{slug}\CLAUDE.md`**
+
+```markdown
+# {Client Name} — Agentic Workflow Project
+
+## WAT Framework
+
+This project follows the WAT framework for agentic work:
+
+- **W — Workflows** (`workflows/`): Step-by-step procedure files. One Markdown file per automation. Brief Claude on the workflow before asking it to build.
+- **A — Agent**: Claude Code — the AI agent that reads this file, plans, and executes tasks.
+- **T — Tools** (`tools/`): Scripts and integrations the agent uses to get things done. Python scripts named `verb_noun.py`. n8n JSON exports live here too.
+
+## Folder structure
+
+| Folder | Purpose |
+|---|---|
+| `workflows/` | SOPs — one file per automation |
+| `tools/` | Scripts, n8n exports, integrations |
+| `temp/outputs/` | Working outputs during a session (disposable) |
+| `temp/resources/` | Input files Claude needs access to during a run |
+| `context/` | Client brief, meeting notes |
+| `deliverables/` | Outputs ready to share with client (before Google Drive) |
+
+## Secrets
+
+API keys and credentials live in `.env`. This file is gitignored and never committed.
+Copy `.env.example` to `.env` and fill in values before running any tool.
+
+## Session start
+
+When starting a new session on this project, read:
+1. `context/brief.md` — client context and goals
+2. Any relevant `workflows/` file for the task at hand
+3. This file
+
+Then ask: "What are we working on today?"
 ```
 
 ---
@@ -156,13 +199,16 @@ Client folder ready.
 
   c:\code\AIS-OS\projects\{slug}\
 
+  CLAUDE.md           ← WAT config — Claude reads this at session start
   context\
     brief.md          ← fill this in first
     meeting-notes\
-  workflows\          ← WAT Layer 1: SOPs
-  tools\              ← WAT Layer 3: scripts, n8n exports
+  workflows\          ← W: SOPs, one file per automation
+  tools\              ← T: scripts, n8n exports
+  temp\               ← disposable (gitignored)
+    outputs\
+    resources\
   deliverables\       ← outputs before Google Drive
-  .tmp\               ← disposable (gitignored)
 
 Next:
   1. Open context\brief.md and fill in the problem + first automation target.
@@ -172,8 +218,10 @@ Next:
 
 ## Notes
 
-- `.tmp/` is disposable. Anything a client needs to see goes to `deliverables/` first, then Google Drive.
+- `temp/` is disposable and gitignored. Anything a client needs to see goes to `deliverables/` first, then Google Drive.
+- `temp/outputs/` — working outputs during a session. `temp/resources/` — input files Claude needs during a run.
 - `tools/` holds Python scripts and n8n JSON exports. Keep scripts named `verb_noun.py` (e.g. `pull_ticket_data.py`).
 - `workflows/` holds Markdown SOPs — one file per automation. Brief Claude on the workflow before asking it to build.
+- `CLAUDE.md` is the session entrypoint. Claude reads it at the start of every session to orient on the project.
 - One folder per client. Don't nest clients inside each other.
 - Full WAT framework reference: `references/wat-framework.md` in AIS-OS root.
