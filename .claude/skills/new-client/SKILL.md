@@ -1,6 +1,6 @@
 ---
 name: new-client
-description: Scaffold a WAT-aligned project folder for a new client engagement under c:\code\AIS-OS\projects.
+description: Scaffold a WAT-aligned project folder for a new client engagement under c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects.
 bike-method-phase: 1  # Phase 1 — Training wheels. Run manually first. Validate the structure works before wiring to any trigger.
 three-ms-attribution: |
   Adapted from The Three Ms of AI™ © 2026 Nate Herk.
@@ -10,7 +10,7 @@ three-ms-attribution: |
 
 Triggered by: `/new-client <Client Name>`
 
-Creates a standard WAT-aligned project folder at `c:\code\AIS-OS\projects\{client-slug}\` and populates it with starter templates. No AI step — fully deterministic.
+Creates a standard WAT-aligned project folder at `c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{client-slug}\` and populates it with starter templates. No AI step — fully deterministic.
 
 ## Steps
 
@@ -26,15 +26,15 @@ Slugify rules:
 
 ### Step 2 — Check for conflicts
 
-If `c:\code\AIS-OS\projects\{slug}` already exists, stop and tell Ralph:
-> "A folder for `{slug}` already exists at `c:\code\AIS-OS\projects\{slug}`. Did you mean a different client?"
+If `c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}` already exists, stop and tell Ralph:
+> "A folder for `{slug}` already exists at `c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}`. Did you mean a different client?"
 
 ### Step 3 — Create folder structure
 
-Create the following using PowerShell (create parent `c:\code\AIS-OS\projects` first if it doesn't exist):
+Create the following using PowerShell (create parent `c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects` first if it doesn't exist):
 
 ```
-c:\code\AIS-OS\projects\
+c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\
   {client-slug}\
     context\
       meeting-notes\
@@ -52,7 +52,7 @@ Write these four files with the content below, substituting `{Client Name}` and 
 
 ---
 
-**`c:\code\AIS-OS\projects\{slug}\README.md`**
+**`c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\README.md`**
 
 ```markdown
 # {Client Name}
@@ -70,7 +70,7 @@ Write these four files with the content below, substituting `{Client Name}` and 
 | Meeting notes | `context/meeting-notes/` |
 | Client brief | `context/brief.md` |
 | Deliverables (before Drive) | `deliverables/` |
-| Temp files | `.tmp/` (disposable) |
+| Temp files | `temp/` (disposable, gitignored) |
 
 ## Next steps
 
@@ -81,7 +81,7 @@ Write these four files with the content below, substituting `{Client Name}` and 
 
 ---
 
-**`c:\code\AIS-OS\projects\{slug}\context\brief.md`**
+**`c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\context\brief.md`**
 
 ```markdown
 # {Client Name} — Client Brief
@@ -121,7 +121,7 @@ Write these four files with the content below, substituting `{Client Name}` and 
 
 ---
 
-**`c:\code\AIS-OS\projects\{slug}\.env.example`**
+**`c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\.env.example`**
 
 ```
 # API keys for {Client Name}
@@ -135,7 +135,7 @@ Write these four files with the content below, substituting `{Client Name}` and 
 
 ---
 
-**`c:\code\AIS-OS\projects\{slug}\.gitignore`**
+**`c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\.gitignore`**
 
 ```
 .env
@@ -149,29 +149,33 @@ token.json
 
 ---
 
-**`c:\code\AIS-OS\projects\{slug}\CLAUDE.md`**
+**`c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\CLAUDE.md`**
 
 ```markdown
 # {Client Name} — Agentic Workflow Project
 
+This file is the master configuration that Claude Code reads at the start of every session.
+
 ## WAT Framework
 
-This project follows the WAT framework for agentic work:
+This project follows the WAT framework (Workflows - Agent - Tools):
 
-- **W — Workflows** (`workflows/`): Step-by-step procedure files. One Markdown file per automation. Brief Claude on the workflow before asking it to build.
+- **W — Workflows** (`workflows/`): Step-by-step procedures that orchestrate the work. One Markdown file per automation.
 - **A — Agent**: Claude Code — the AI agent that reads this file, plans, and executes tasks.
-- **T — Tools** (`tools/`): Scripts and integrations the agent uses to get things done. Python scripts named `verb_noun.py`. n8n JSON exports live here too.
+- **T — Tools** (`tools/`): Scripts and integrations that the agent uses to get things done. Python scripts named `verb_noun.py`. n8n JSON exports live here too.
 
 ## Folder structure
 
-| Folder | Purpose |
+| Path | Purpose |
 |---|---|
-| `workflows/` | SOPs — one file per automation |
+| `workflows/` | Step-by-step procedure files — one per automation |
 | `tools/` | Scripts, n8n exports, integrations |
-| `temp/outputs/` | Working outputs during a session (disposable) |
+| `temp/` | Temporary working files (disposable, gitignored) |
+| `temp/outputs/` | Working outputs during a session |
 | `temp/resources/` | Input files Claude needs access to during a run |
 | `context/` | Client brief, meeting notes |
 | `deliverables/` | Outputs ready to share with client (before Google Drive) |
+| `.env` | API keys and secrets — never commit |
 
 ## Secrets
 
@@ -197,7 +201,7 @@ Output this block (substituting real values):
 ```
 Client folder ready.
 
-  c:\code\AIS-OS\projects\{slug}\
+  c:\Users\ralph\OneDrive\Desktop\AIOS\AIS-OS\projects\{slug}\
 
   CLAUDE.md           ← WAT config — Claude reads this at session start
   context\

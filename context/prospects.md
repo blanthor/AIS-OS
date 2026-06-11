@@ -24,7 +24,7 @@ Active prospects and key contacts. One section per company.
 **Notes:**
 - Thomas Henderson (Dir. of Operations) called 2026-06-04 to introduce Bryan Meyer
 - Sent follow-up email 2026-06-05 requesting in-person meeting to discuss optimizing workflows
-- Next follow-up: 2026-06-11
+- Next follow-up: 2026-06-18
 
 ---
 
