@@ -37,6 +37,10 @@ This quarter (Q2 2026, by end of August):
 
 Match the register in `references/voice.md`. Casual but professional. Short sentences. No em dashes. Bullet points over paragraphs. Don't fake my voice on external content (LinkedIn, email to clients) without showing me a draft first.
 
+## Tools
+
+For all Google Workspace operations (Gmail, Sheets, Calendar, Drive) use the `gws` CLI via Bash. Check `references/gws-api.md` before suggesting alternatives like MCP servers or n8n bridges. It has command examples and the Warm Outreach spreadsheet ID pre-filled.
+
 ## Connections
 
 Tools Ralph uses, not yet wired to the AIOS (wire these on Day 2, run /audit on Day 7):
