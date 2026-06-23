@@ -81,3 +81,17 @@ Keep it terse. Future-you will thank present-you for capturing the *why*, not ju
 **Owner:** Ralph
 
 ---
+
+## 2026-06-19 — Completed Runegeld web page
+
+**Decision:** Begin building a web page for Runegeld. Work started at 17:55 today.
+
+**Why:** Project underway — no specific rationale captured.
+
+**Outcome:** Completed in 1.5 hours.
+
+**Owner:** Ralph
+
+**Working directory:** `C:\code\CodeExProjects\RuneGeld`
+
+---

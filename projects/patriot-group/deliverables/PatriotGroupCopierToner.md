@@ -62,7 +62,7 @@ Toner ≤ 20%  →  lookup unit  →  lookup Ricoh ARMS
 ## Pain Points (captured in discovery)
 
 - Employee must context-switch between three systems (email, Ricoh ARMS, eAutomate) to process a single alert.
-- No alerts go out when toner is between 5-20% — the only signal is the initial copier email, so a missed or buried email means a missed shipment.
+- Alerts go out regularly when toner is between 5-20%, requiring daily verification of toner levels, determining whether a shipment is necessary, and requiring inbox managment and cleanup.
 - Manual lookup means no audit trail: if a shipment was missed, there's no log of who checked what and when.
 - Process depends on a single employee's availability — no backup if that person is out.
 - **Volume TBD** — confirm with client: how many alerts land per day/week and how often is the 5% threshold actually hit?
@@ -119,6 +119,9 @@ Using the Serial #, two checks are performed in Ricoh ARMS:
 ### 8. Delete or Archive eMail
 - The processed alert e-mail is deleted or archived to keep the inbox clean.
 
+### 9. Logging
+ - Log actions taken by system in a table which may be viewed as a report.
+
 ---
 
 ## Decision Logic Summary
@@ -146,12 +149,14 @@ Toner ≤ 20%  →  lookup unit  →  lookup Ricoh ARMS
 
 ## Open Questions / Blockers
 
-- [ ] Does Ricoh ARMS expose an API for toner level and shipment history lookups? Who holds credentials?
+- [ ] Does Ricoh ARMS expose an Application Programming Interface (API) for toner level and shipment history lookups? Who holds credentials?
 - [ ] Does eAutomate PTG Prod have an API for parsing inbound emails and creating supply orders? (ECI Software publishes a REST API — confirm Patriot Group's license includes it.)
 - [ ] Is there a sandbox or test environment for eAutomate so we can dry-run shipment creation without sending real orders?
 - [ ] What email provider hosts the monitored inbox — Outlook/Exchange? Is Microsoft Graph API access available?
 - [ ] What is the acceptable error rate for automated shipment creation? (i.e., is a false positive shipment costly enough to require human review?)
 - [ ] Who is the sign-off stakeholder before the automation goes live?
+- [ ] Can we set up a separate inbox to receive notifications for testing purposes?
+- [ ] Can we configure Ricoh copiers to provide their exact levels? Here we are hoping to avoid a separate look-up in Ricoh ARMS.
 
 ---
 
