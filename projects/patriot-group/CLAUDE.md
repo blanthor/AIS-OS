@@ -13,6 +13,10 @@ Automates the toner replenishment workflow for a copier maintenance company. Ric
 
 **Workflow entry point:** `workflows/process_toner_alert.md` — read this first before running any tools.
 
+**MD → DOCX conversion:** Always use the shared script at `tools/md_to_docx.py` (two levels up from this project). Run it from the project root:
+`python ../../tools/md_to_docx.py --input deliverables/Foo.md --output deliverables/Foo.docx`
+Never use pandoc or other tools for this.
+
 **Outstanding setup required before first run:**
 1. Fill in all credentials in `.env` (see comments in that file for where to get each one)
 2. Confirm the Ricoh ARMS API endpoint and field names — see the TODO block in `tools/check_ricoh_arms.py`

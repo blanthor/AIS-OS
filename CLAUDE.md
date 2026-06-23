@@ -41,6 +41,10 @@ Match the register in `references/voice.md`. Casual but professional. Short sent
 
 For all Google Workspace operations (Gmail, Sheets, Calendar, Drive) use the `gws` CLI via Bash. Check `references/gws-api.md` before suggesting alternatives like MCP servers or n8n bridges. It has command examples and the Warm Outreach spreadsheet ID pre-filled.
 
+**MD → DOCX conversion:** Always use the shared script at `tools/md_to_docx.py` (repo root). Run it with:
+`python tools/md_to_docx.py --input path/to/file.md --output path/to/file.docx`
+Never use pandoc or write a one-off conversion.
+
 ## Connections
 
 Tools Ralph uses, not yet wired to the AIOS (wire these on Day 2, run /audit on Day 7):

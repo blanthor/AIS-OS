@@ -1,3 +1,4 @@
+import argparse
 import os
 import re
 from docx import Document
@@ -5,9 +6,6 @@ from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
-
-MD_FILE = "PatriotGroupCopierToner.md"
-OUT_FILE = "PatriotGroupCopierToner.docx"
 
 
 def add_inline_runs(para, text):
@@ -34,7 +32,6 @@ def set_cell_shading(cell, fill_hex):
 def parse_md_to_docx(md_path, out_path):
     doc = Document()
 
-    # Narrow margins for readability
     for section in doc.sections:
         section.left_margin = Inches(1)
         section.right_margin = Inches(1)
@@ -105,20 +102,18 @@ def parse_md_to_docx(md_path, out_path):
             para._p.get_or_add_pPr().append(shd)
             continue
 
-        # Table — collect all consecutive table lines
+        # Table
         if re.match(r"^\|", line.strip()):
             table_lines = []
             while i < len(lines) and re.match(r"^\|", lines[i].strip()):
                 table_lines.append(lines[i].rstrip("\n"))
                 i += 1
-            # Filter out separator rows (---|---)
             rows = [r for r in table_lines if not re.match(r"^\|\s*[-:]+[\s|:-]*$", r)]
             if not rows:
                 continue
             cols = [c.strip() for c in rows[0].strip("|").split("|")]
             table = doc.add_table(rows=1, cols=len(cols))
             table.style = "Table Grid"
-            # Header row
             hdr = table.rows[0].cells
             for ci, col in enumerate(cols):
                 hdr[ci].text = ""
@@ -127,7 +122,6 @@ def parse_md_to_docx(md_path, out_path):
                 for run in p.runs:
                     run.bold = True
                 set_cell_shading(hdr[ci], "D9E1F2")
-            # Data rows
             for row_text in rows[1:]:
                 cells = [c.strip() for c in row_text.strip("|").split("|")]
                 row = table.add_row().cells
@@ -135,7 +129,7 @@ def parse_md_to_docx(md_path, out_path):
                     if ci < len(row):
                         row[ci].text = ""
                         add_inline_runs(row[ci].paragraphs[0], cell_text)
-            doc.add_paragraph()  # spacing after table
+            doc.add_paragraph()
             continue
 
         # Unordered list
@@ -177,8 +171,8 @@ def parse_md_to_docx(md_path, out_path):
 
 
 if __name__ == "__main__":
-    base = os.path.dirname(__file__)
-    parse_md_to_docx(
-        os.path.join(base, MD_FILE),
-        os.path.join(base, OUT_FILE),
-    )
+    parser = argparse.ArgumentParser(description="Convert a Markdown file to a Word document.")
+    parser.add_argument("--input", required=True, help="Path to the source .md file")
+    parser.add_argument("--output", required=True, help="Path for the output .docx file")
+    args = parser.parse_args()
+    parse_md_to_docx(args.input, args.output)
