@@ -30,7 +30,7 @@ Active prospects and key contacts. One section per company.
 
 ## Patriot Group, Ltd.
 
-**Status:** Discovery complete — workflow identified, proposal/scoping pending
+**Status:** Workflow verified — setup requirements TBD, proposal pending
 
 **Industry:** Managed print / document services
 
@@ -40,15 +40,21 @@ Active prospects and key contacts. One section per company.
 
 **Contacts:**
 
-| Name | Title | Email |
-|---|---|---|
-| Jim Hotze | Owner | jhotze@patriotgroup.com |
-| David Dufilho | VP | ddufilho@patriotgroup.com |
-| Mary Gianakos | — | mGianakos@patriotgroup.com |
-| Cincy Yaklin | — | cyaklin@patriotgroup.com |
+| Name | Title | Email | Notes |
+|---|---|---|---|
+| Jim Hotze | Owner | jhotze@patriotgroup.com | [LinkedIn](https://www.linkedin.com/in/jim-hotze-65a22610) |
+| David Dufilho | VP — Primary Stakeholder | ddufilho@patriotgroup.com | |
+| Mary Gianakos | Primary workflow operator | mGianakos@patriotgroup.com | On vacation 2026-06-30 |
+| Cyndi Yalkin | Backup workflow operator | cyaklin@patriotgroup.com | |
+| David Kobs | IT Manager | — | Internal Patriot Group IT |
+| Royce Landman | RCL — O365 contact | rcl@rcl.com | External; RCL manages O365 for Patriot Group |
 
 **Notes:**
-- Discovery meeting held 2026-05-22 with all four contacts
-- Jim Hotze: [LinkedIn](https://www.linkedin.com/in/jim-hotze-65a22610) | jhotze@patriotgroup.com
+- 2026-05-22: Initial discovery meeting
+- 2026-06-23: Workflow verification meeting — corrections captured, IT Manager introduced. See `projects/patriot-group/meetings/2026-06-23.md`
+- @remote (Ricoh, Japan) sends alert emails to a former employee inbox — forwarded to Mary/Cyndi. Security risk to address.
+- eAutomate sandbox available for dev/test
+- Investigate Ricoh Smart Integrations (RSI) as potential automation layer
+- Mary on vacation starting 2026-06-30
 
 ---

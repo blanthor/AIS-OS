@@ -150,7 +150,9 @@ Toner ≤ 20%  →  lookup unit  →  lookup Ricoh ARMS
 ## Open Questions / Blockers
 
 - [ ] Does Ricoh ARMS expose an Application Programming Interface (API) for toner level and shipment history lookups? Who holds credentials?
-- [ ] Does eAutomate PTG Prod have an API for parsing inbound emails and creating supply orders? (ECI Software publishes a REST API — confirm Patriot Group's license includes it.)
+- [x] Does eAutomate have an API for equipment lookups? **Yes — PIP, a SOAP service at `PublicAPIService.asmx`. Operation: `getEquipmentFromSerialNumber` (batch variant also available).**
+- [ ] eAutomate PIP API: **enablement pending** for Patriot Group's instance — action with ECI/Chris Kobs before integration can be built.
+- [ ] Does eAutomate PIP cover supply order creation, or is that a separate API/operation?
 - [ ] Is there a sandbox or test environment for eAutomate so we can dry-run shipment creation without sending real orders?
 - [ ] What email provider hosts the monitored inbox — Outlook/Exchange? Is Microsoft Graph API access available?
 - [ ] What is the acceptable error rate for automated shipment creation? (i.e., is a false positive shipment costly enough to require human review?)

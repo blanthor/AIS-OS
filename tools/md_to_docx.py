@@ -29,6 +29,20 @@ def set_cell_shading(cell, fill_hex):
     tcPr.append(shd)
 
 
+def remove_cell_borders(cell):
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    tcBorders = OxmlElement("w:tcBorders")
+    for side in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        border = OxmlElement(f"w:{side}")
+        border.set(qn("w:val"), "none")
+        border.set(qn("w:sz"), "0")
+        border.set(qn("w:space"), "0")
+        border.set(qn("w:color"), "auto")
+        tcBorders.append(border)
+    tcPr.append(tcBorders)
+
+
 def parse_md_to_docx(md_path, out_path):
     doc = Document()
 
@@ -39,14 +53,23 @@ def parse_md_to_docx(md_path, out_path):
     with open(md_path, encoding="utf-8") as f:
         lines = f.readlines()
 
+    beside_image_path = None
+
     i = 0
     while i < len(lines):
         line = lines[i].rstrip("\n")
 
-        # Inline image
+        # <!-- beside: path --> directive — image placed to the right of the next table
+        m_beside = re.match(r"<!--\s*beside:\s*(.+?)\s*-->", line.strip())
+        if m_beside:
+            beside_image_path = m_beside.group(1).strip()
+            i += 1
+            continue
+
+        # Inline image (standalone line)
         m = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", line.strip())
         if m:
-            img_path = os.path.join(os.path.dirname(md_path), m.group(2))
+            img_path = os.path.normpath(os.path.join(os.path.dirname(md_path), m.group(2)))
             if os.path.isfile(img_path):
                 doc.add_picture(img_path, width=Inches(5.5))
                 doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -112,8 +135,12 @@ def parse_md_to_docx(md_path, out_path):
             if not rows:
                 continue
             cols = [c.strip() for c in rows[0].strip("|").split("|")]
-            table = doc.add_table(rows=1, cols=len(cols))
+
+            num_cols = len(cols) + (1 if beside_image_path else 0)
+            table = doc.add_table(rows=1, cols=num_cols)
             table.style = "Table Grid"
+
+            # Header row
             hdr = table.rows[0].cells
             for ci, col in enumerate(cols):
                 hdr[ci].text = ""
@@ -122,13 +149,54 @@ def parse_md_to_docx(md_path, out_path):
                 for run in p.runs:
                     run.bold = True
                 set_cell_shading(hdr[ci], "D9E1F2")
+            if beside_image_path:
+                # Image column header — no shading, no border
+                set_cell_shading(hdr[len(cols)], "FFFFFF")
+                remove_cell_borders(hdr[len(cols)])
+
+            # Data rows
             for row_text in rows[1:]:
                 cells = [c.strip() for c in row_text.strip("|").split("|")]
                 row = table.add_row().cells
                 for ci, cell_text in enumerate(cells):
-                    if ci < len(row):
+                    if ci < len(cols):
                         row[ci].text = ""
-                        add_inline_runs(row[ci].paragraphs[0], cell_text)
+                        img_m = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", cell_text.strip())
+                        if img_m:
+                            img_abs = os.path.normpath(
+                                os.path.join(os.path.dirname(md_path), img_m.group(2))
+                            )
+                            if os.path.isfile(img_abs):
+                                para = row[ci].paragraphs[0]
+                                para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                para.add_run().add_picture(img_abs, width=Inches(1.5))
+                        else:
+                            add_inline_runs(row[ci].paragraphs[0], cell_text)
+                if beside_image_path:
+                    set_cell_shading(row[len(cols)], "FFFFFF")
+                    remove_cell_borders(row[len(cols)])
+
+            # Merge image column and insert image
+            if beside_image_path:
+                img_col = len(cols)
+                total_rows = len(rows)  # header + data rows
+                top_cell = table.cell(0, img_col)
+                bottom_cell = table.cell(total_rows - 1, img_col)
+                merged = top_cell.merge(bottom_cell)
+
+                img_abs = os.path.normpath(
+                    os.path.join(os.path.dirname(md_path), beside_image_path)
+                )
+                if os.path.isfile(img_abs):
+                    para = merged.paragraphs[0]
+                    para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    run = para.add_run()
+                    run.add_picture(img_abs, width=Inches(0.75))
+                else:
+                    merged.paragraphs[0].add_run(f"[Image not found: {beside_image_path}]")
+
+                beside_image_path = None
+
             doc.add_paragraph()
             continue
 

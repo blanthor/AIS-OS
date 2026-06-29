@@ -1,0 +1,784 @@
+﻿{
+    "updatedAt":  "2026-06-26T13:39:13.700Z",
+    "createdAt":  "2026-06-24T22:59:29.836Z",
+    "id":  "xSBBcmS2bVyLIiRA",
+    "name":  "RicohPoC",
+    "description":  null,
+    "active":  true,
+    "isArchived":  false,
+    "nodes":  [
+                  {
+                      "parameters":  {
+                                         "rule":  {
+                                                      "interval":  [
+                                                                       {
+                                                                           "field":  "minutes"
+                                                                       }
+                                                                   ]
+                                                  }
+                                     },
+                      "id":  "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "name":  "Every 5 Minutes",
+                      "type":  "n8n-nodes-base.scheduleTrigger",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       -448,
+                                       304
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "url":  "https://graph.microsoft.com/v1.0/users/rcompton@patriotgroup.com/messages",
+                                         "authentication":  "genericCredentialType",
+                                         "genericAuthType":  "oAuth2Api",
+                                         "sendQuery":  true,
+                                         "queryParameters":  {
+                                                                 "parameters":  [
+                                                                                    {
+                                                                                        "name":  "$filter",
+                                                                                        "value":  "from/emailAddress/address eq \u0027zjc_atremote_system@jp.ricoh.com\u0027 and isRead eq false"
+                                                                                    },
+                                                                                    {
+                                                                                        "name":  "$select",
+                                                                                        "value":  "id,subject,body,from,receivedDateTime"
+                                                                                    },
+                                                                                    {
+                                                                                        "name":  "$top",
+                                                                                        "value":  "50"
+                                                                                    }
+                                                                                ]
+                                                             },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                      "name":  "Get Ricoh Emails",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       -224,
+                                       224
+                                   ],
+                      "credentials":  {
+                                          "oAuth2Api":  {
+                                                            "id":  "IvyhkVAwboJGDb4W",
+                                                            "name":  "m365-patriot-group"
+                                                        }
+                                      }
+                  },
+                  {
+                      "parameters":  {
+                                         "conditions":  {
+                                                            "options":  {
+                                                                            "caseSensitive":  true,
+                                                                            "leftValue":  "",
+                                                                            "typeValidation":  "strict",
+                                                                            "version":  1
+                                                                        },
+                                                            "conditions":  [
+                                                                               {
+                                                                                   "id":  "cond-has-emails",
+                                                                                   "leftValue":  "={{ $json.value.length }}",
+                                                                                   "rightValue":  0,
+                                                                                   "operator":  {
+                                                                                                    "type":  "number",
+                                                                                                    "operation":  "gt"
+                                                                                                }
+                                                                               }
+                                                                           ],
+                                                            "combinator":  "and"
+                                                        },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "c3d4e5f6-a7b8-9012-cdef-123456789012",
+                      "name":  "Has Emails?",
+                      "type":  "n8n-nodes-base.if",
+                      "typeVersion":  2,
+                      "position":  [
+                                       0,
+                                       224
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "fieldToSplitOut":  "value",
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "d4e5f6a7-b8c9-0123-defa-234567890123",
+                      "name":  "Split Out Emails",
+                      "type":  "n8n-nodes-base.splitOut",
+                      "typeVersion":  1,
+                      "position":  [
+                                       224,
+                                       144
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "jsCode":  "const email = $json;\nconst subject = email.subject || \u0027\u0027;\nconst bodyContent = email.body?.content || \u0027\u0027;\nconst receivedDateTime = email.receivedDateTime || \u0027\u0027;\n\n// Strip HTML - preserve newlines so line-anchored regex works\nconst plainBody = bodyContent\n  .replace(/\u003cbr\\s*\\/?\u003e/gi, \u0027\\n\u0027)\n  .replace(/\u003c\\/p\u003e/gi, \u0027\\n\u0027)\n  .replace(/\u003c[^\u003e]+\u003e/g, \u0027\u0027)\n  .replace(/\u0026nbsp;/g, \u0027 \u0027)\n  .replace(/\u0026amp;/g, \u0027\u0026\u0027)\n  .replace(/\u0026lt;/g, \u0027\u003c\u0027)\n  .replace(/\u0026gt;/g, \u0027\u003e\u0027);\n\n// Extract value after the first colon on the numbered line\nfunction extractField(text, fieldNum) {\n  const pattern = new RegExp(`^${fieldNum}\\\\..*?:\\\\s*(.+)`, \u0027m\u0027);\n  const match = text.match(pattern);\n  return match ? match[1].trim() : \u0027\u0027;\n}\n\nconst customerName   = extractField(plainBody, 1);\nconst modelName      = extractField(plainBody, 6);\nconst endSupplyType  = extractField(plainBody, 8);\nconst tonerStatusRaw = extractField(plainBody, 9);\nconst deviceSN       = extractField(plainBody, 12);\n\n// Parse \"Black 50%,Yellow 20%,Magenta 20%,Cyan 10%\" into individual columns\nconst tonerLevels = {};\ntonerStatusRaw.split(\u0027,\u0027).forEach(part =\u003e {\n  const m = part.trim().match(/^(\\w+)\\s+(\\d+)%$/);\n  if (m) tonerLevels[m[1]] = parseInt(m[2], 10);\n});\n\nreturn [{\n  json: {\n    emailId:          email.id,\n    receivedDateTime,\n    customerName,\n    deviceSN,\n    modelName,\n    endSupplyType,\n    tonerStatusRaw,\n    tonerBlack:   tonerLevels[\u0027Black\u0027]   ?? null,\n    tonerCyan:    tonerLevels[\u0027Cyan\u0027]    ?? null,\n    tonerMagenta: tonerLevels[\u0027Magenta\u0027] ?? null,\n    tonerYellow:  tonerLevels[\u0027Yellow\u0027]  ?? null,\n    subject\n  }\n}];"
+                                     },
+                      "id":  "e5f6a7b8-c9d0-1234-efab-345678901234",
+                      "name":  "Parse Email",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       432,
+                                       144
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "operation":  "append",
+                                         "documentId":  {
+                                                            "__rl":  true,
+                                                            "value":  "1mAr-eDsYGiD9Wf6pt5cCjUdU1w4Pz5Lx78uOTMof84A",
+                                                            "mode":  "id"
+                                                        },
+                                         "sheetName":  {
+                                                           "__rl":  true,
+                                                           "value":  "gid=0",
+                                                           "mode":  "list",
+                                                           "cachedResultName":  "inbox-data",
+                                                           "cachedResultUrl":  "https://docs.google.com/spreadsheets/d/1mAr-eDsYGiD9Wf6pt5cCjUdU1w4Pz5Lx78uOTMof84A/edit#gid=0"
+                                                       },
+                                         "columns":  {
+                                                         "mappingMode":  "defineBelow",
+                                                         "value":  {
+                                                                       "Customer Name":  "={{ $json.customerName }}",
+                                                                       "DeviceSN":  "={{ $json.deviceSN }}",
+                                                                       "ModelName":  "={{ $json.modelName }}",
+                                                                       "Black":  "={{ $json.tonerBlack }}",
+                                                                       "Cyan":  "={{ $json.tonerCyan }}",
+                                                                       "Magenta":  "={{ $json.tonerMagenta }}",
+                                                                       "Yellow":  "={{ $json.tonerYellow }}",
+                                                                       "Received Date":  "={{ $json.receivedDateTime }}"
+                                                                   },
+                                                         "matchingColumns":  [
+
+                                                                             ],
+                                                         "schema":  [
+                                                                        {
+                                                                            "id":  "Customer Name",
+                                                                            "displayName":  "Customer Name",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "DeviceSN",
+                                                                            "displayName":  "DeviceSN",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "ModelName",
+                                                                            "displayName":  "ModelName",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Black",
+                                                                            "displayName":  "Black",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Cyan",
+                                                                            "displayName":  "Cyan",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Magenta",
+                                                                            "displayName":  "Magenta",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Yellow",
+                                                                            "displayName":  "Yellow",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Received Date",
+                                                                            "displayName":  "Received Date",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        }
+                                                                    ],
+                                                         "attemptToConvertTypes":  false,
+                                                         "convertFieldsToString":  false
+                                                     },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "f6a7b8c9-d0e1-2345-fabc-456789012345",
+                      "name":  "Append to Google Sheet",
+                      "type":  "n8n-nodes-base.googleSheets",
+                      "typeVersion":  4.5,
+                      "position":  [
+                                       656,
+                                       144
+                                   ],
+                      "credentials":  {
+                                          "googleSheetsOAuth2Api":  {
+                                                                        "id":  "loJRZCgV7GWnPpU8",
+                                                                        "name":  "Google Sheets account"
+                                                                    }
+                                      }
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "PATCH",
+                                         "url":  "=https://graph.microsoft.com/v1.0/users/rcompton@patriotgroup.com/messages/{{ $(\u0027Parse Email\u0027).item.json.emailId }}",
+                                         "authentication":  "genericCredentialType",
+                                         "genericAuthType":  "oAuth2Api",
+                                         "sendBody":  true,
+                                         "specifyBody":  "json",
+                                         "jsonBody":  "{\n  \"isRead\": true\n}",
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "a7b8c9d0-e1f2-3456-abcd-567890123456",
+                      "name":  "Mark as Read",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       880,
+                                       144
+                                   ],
+                      "credentials":  {
+                                          "oAuth2Api":  {
+                                                            "id":  "IvyhkVAwboJGDb4W",
+                                                            "name":  "m365-patriot-group"
+                                                        }
+                                      }
+                  }
+              ],
+    "connections":  {
+                        "Every 5 Minutes":  {
+                                                "main":  [
+                                                             [
+                                                                 {
+                                                                     "node":  "Get Ricoh Emails",
+                                                                     "type":  "main",
+                                                                     "index":  0
+                                                                 }
+                                                             ]
+                                                         ]
+                                            },
+                        "Get Ricoh Emails":  {
+                                                 "main":  [
+                                                              [
+                                                                  {
+                                                                      "node":  "Has Emails?",
+                                                                      "type":  "main",
+                                                                      "index":  0
+                                                                  }
+                                                              ]
+                                                          ]
+                                             },
+                        "Has Emails?":  {
+                                            "main":  [
+                                                         [
+                                                             {
+                                                                 "node":  "Split Out Emails",
+                                                                 "type":  "main",
+                                                                 "index":  0
+                                                             }
+                                                         ],
+                                                         [
+
+                                                         ]
+                                                     ]
+                                        },
+                        "Split Out Emails":  {
+                                                 "main":  [
+                                                              [
+                                                                  {
+                                                                      "node":  "Parse Email",
+                                                                      "type":  "main",
+                                                                      "index":  0
+                                                                  }
+                                                              ]
+                                                          ]
+                                             },
+                        "Parse Email":  {
+                                            "main":  [
+                                                         [
+                                                             {
+                                                                 "node":  "Append to Google Sheet",
+                                                                 "type":  "main",
+                                                                 "index":  0
+                                                             }
+                                                         ]
+                                                     ]
+                                        },
+                        "Append to Google Sheet":  {
+                                                       "main":  [
+                                                                    [
+                                                                        {
+                                                                            "node":  "Mark as Read",
+                                                                            "type":  "main",
+                                                                            "index":  0
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                   }
+                    },
+    "settings":  {
+                     "executionOrder":  "v1",
+                     "binaryMode":  "separate"
+                 },
+    "staticData":  {
+                       "node:Every 5 Minutes":  {
+                                                    "recurrenceRules":  [
+
+                                                                        ]
+                                                }
+                   },
+    "meta":  {
+                 "templateCredsSetupCompleted":  true
+             },
+    "nodeGroups":  [
+
+                   ],
+    "pinData":  {
+
+                },
+    "versionId":  "fc977c04-fdbb-470f-bcc5-04289a40b894",
+    "activeVersionId":  "fc977c04-fdbb-470f-bcc5-04289a40b894",
+    "versionCounter":  50,
+    "triggerCount":  1,
+    "sourceWorkflowId":  null,
+    "shared":  [
+                   {
+                       "updatedAt":  "2026-06-24T22:59:29.838Z",
+                       "createdAt":  "2026-06-24T22:59:29.838Z",
+                       "role":  "workflow:owner",
+                       "workflowId":  "xSBBcmS2bVyLIiRA",
+                       "projectId":  "jssn486y2Xb3RBXV",
+                       "project":  {
+                                       "updatedAt":  "2025-11-12T19:06:06.719Z",
+                                       "createdAt":  "2025-11-12T19:06:02.027Z",
+                                       "id":  "jssn486y2Xb3RBXV",
+                                       "name":  "Ralph Compton \u003cralph.compton@gmail.com\u003e",
+                                       "type":  "personal",
+                                       "icon":  null,
+                                       "description":  null,
+                                       "customTelemetryTags":  [
+
+                                                               ],
+                                       "creatorId":  "13342864-5228-4314-a533-dbf1fbcaea1f"
+                                   }
+                   }
+               ],
+    "tags":  [
+
+             ],
+    "activeVersion":  {
+                          "updatedAt":  "2026-06-26T15:50:22.000Z",
+                          "createdAt":  "2026-06-26T13:39:13.701Z",
+                          "versionId":  "fc977c04-fdbb-470f-bcc5-04289a40b894",
+                          "workflowId":  "xSBBcmS2bVyLIiRA",
+                          "nodes":  [
+                                        {
+                                            "parameters":  {
+                                                               "rule":  {
+                                                                            "interval":  [
+                                                                                             {
+                                                                                                 "field":  "minutes"
+                                                                                             }
+                                                                                         ]
+                                                                        }
+                                                           },
+                                            "id":  "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                            "name":  "Every 5 Minutes",
+                                            "type":  "n8n-nodes-base.scheduleTrigger",
+                                            "typeVersion":  1.2,
+                                            "position":  [
+                                                             -448,
+                                                             304
+                                                         ]
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "url":  "https://graph.microsoft.com/v1.0/users/rcompton@patriotgroup.com/messages",
+                                                               "authentication":  "genericCredentialType",
+                                                               "genericAuthType":  "oAuth2Api",
+                                                               "sendQuery":  true,
+                                                               "queryParameters":  {
+                                                                                       "parameters":  [
+                                                                                                          {
+                                                                                                              "name":  "$filter",
+                                                                                                              "value":  "from/emailAddress/address eq \u0027zjc_atremote_system@jp.ricoh.com\u0027 and isRead eq false"
+                                                                                                          },
+                                                                                                          {
+                                                                                                              "name":  "$select",
+                                                                                                              "value":  "id,subject,body,from,receivedDateTime"
+                                                                                                          },
+                                                                                                          {
+                                                                                                              "name":  "$top",
+                                                                                                              "value":  "50"
+                                                                                                          }
+                                                                                                      ]
+                                                                                   },
+                                                               "options":  {
+
+                                                                           }
+                                                           },
+                                            "id":  "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                                            "name":  "Get Ricoh Emails",
+                                            "type":  "n8n-nodes-base.httpRequest",
+                                            "typeVersion":  4.2,
+                                            "position":  [
+                                                             -224,
+                                                             224
+                                                         ],
+                                            "credentials":  {
+                                                                "oAuth2Api":  {
+                                                                                  "id":  "IvyhkVAwboJGDb4W",
+                                                                                  "name":  "m365-patriot-group"
+                                                                              }
+                                                            }
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "conditions":  {
+                                                                                  "options":  {
+                                                                                                  "caseSensitive":  true,
+                                                                                                  "leftValue":  "",
+                                                                                                  "typeValidation":  "strict",
+                                                                                                  "version":  1
+                                                                                              },
+                                                                                  "conditions":  [
+                                                                                                     {
+                                                                                                         "id":  "cond-has-emails",
+                                                                                                         "leftValue":  "={{ $json.value.length }}",
+                                                                                                         "rightValue":  0,
+                                                                                                         "operator":  {
+                                                                                                                          "type":  "number",
+                                                                                                                          "operation":  "gt"
+                                                                                                                      }
+                                                                                                     }
+                                                                                                 ],
+                                                                                  "combinator":  "and"
+                                                                              },
+                                                               "options":  {
+
+                                                                           }
+                                                           },
+                                            "id":  "c3d4e5f6-a7b8-9012-cdef-123456789012",
+                                            "name":  "Has Emails?",
+                                            "type":  "n8n-nodes-base.if",
+                                            "typeVersion":  2,
+                                            "position":  [
+                                                             0,
+                                                             224
+                                                         ]
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "fieldToSplitOut":  "value",
+                                                               "options":  {
+
+                                                                           }
+                                                           },
+                                            "id":  "d4e5f6a7-b8c9-0123-defa-234567890123",
+                                            "name":  "Split Out Emails",
+                                            "type":  "n8n-nodes-base.splitOut",
+                                            "typeVersion":  1,
+                                            "position":  [
+                                                             224,
+                                                             144
+                                                         ]
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "jsCode":  "const email = $json;\nconst subject = email.subject || \u0027\u0027;\nconst bodyContent = email.body?.content || \u0027\u0027;\nconst receivedDateTime = email.receivedDateTime || \u0027\u0027;\n\n// Strip HTML - preserve newlines so line-anchored regex works\nconst plainBody = bodyContent\n  .replace(/\u003cbr\\s*\\/?\u003e/gi, \u0027\\n\u0027)\n  .replace(/\u003c\\/p\u003e/gi, \u0027\\n\u0027)\n  .replace(/\u003c[^\u003e]+\u003e/g, \u0027\u0027)\n  .replace(/\u0026nbsp;/g, \u0027 \u0027)\n  .replace(/\u0026amp;/g, \u0027\u0026\u0027)\n  .replace(/\u0026lt;/g, \u0027\u003c\u0027)\n  .replace(/\u0026gt;/g, \u0027\u003e\u0027);\n\n// Extract value after the first colon on the numbered line\nfunction extractField(text, fieldNum) {\n  const pattern = new RegExp(`^${fieldNum}\\\\..*?:\\\\s*(.+)`, \u0027m\u0027);\n  const match = text.match(pattern);\n  return match ? match[1].trim() : \u0027\u0027;\n}\n\nconst customerName   = extractField(plainBody, 1);\nconst modelName      = extractField(plainBody, 6);\nconst endSupplyType  = extractField(plainBody, 8);\nconst tonerStatusRaw = extractField(plainBody, 9);\nconst deviceSN       = extractField(plainBody, 12);\n\n// Parse \"Black 50%,Yellow 20%,Magenta 20%,Cyan 10%\" into individual columns\nconst tonerLevels = {};\ntonerStatusRaw.split(\u0027,\u0027).forEach(part =\u003e {\n  const m = part.trim().match(/^(\\w+)\\s+(\\d+)%$/);\n  if (m) tonerLevels[m[1]] = parseInt(m[2], 10);\n});\n\nreturn [{\n  json: {\n    emailId:          email.id,\n    receivedDateTime,\n    customerName,\n    deviceSN,\n    modelName,\n    endSupplyType,\n    tonerStatusRaw,\n    tonerBlack:   tonerLevels[\u0027Black\u0027]   ?? null,\n    tonerCyan:    tonerLevels[\u0027Cyan\u0027]    ?? null,\n    tonerMagenta: tonerLevels[\u0027Magenta\u0027] ?? null,\n    tonerYellow:  tonerLevels[\u0027Yellow\u0027]  ?? null,\n    subject\n  }\n}];"
+                                                           },
+                                            "id":  "e5f6a7b8-c9d0-1234-efab-345678901234",
+                                            "name":  "Parse Email",
+                                            "type":  "n8n-nodes-base.code",
+                                            "typeVersion":  2,
+                                            "position":  [
+                                                             432,
+                                                             144
+                                                         ]
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "operation":  "append",
+                                                               "documentId":  {
+                                                                                  "__rl":  true,
+                                                                                  "value":  "1mAr-eDsYGiD9Wf6pt5cCjUdU1w4Pz5Lx78uOTMof84A",
+                                                                                  "mode":  "id"
+                                                                              },
+                                                               "sheetName":  {
+                                                                                 "__rl":  true,
+                                                                                 "value":  "gid=0",
+                                                                                 "mode":  "list",
+                                                                                 "cachedResultName":  "inbox-data",
+                                                                                 "cachedResultUrl":  "https://docs.google.com/spreadsheets/d/1mAr-eDsYGiD9Wf6pt5cCjUdU1w4Pz5Lx78uOTMof84A/edit#gid=0"
+                                                                             },
+                                                               "columns":  {
+                                                                               "mappingMode":  "defineBelow",
+                                                                               "value":  {
+                                                                                             "Customer Name":  "={{ $json.customerName }}",
+                                                                                             "DeviceSN":  "={{ $json.deviceSN }}",
+                                                                                             "ModelName":  "={{ $json.modelName }}",
+                                                                                             "Black":  "={{ $json.tonerBlack }}",
+                                                                                             "Cyan":  "={{ $json.tonerCyan }}",
+                                                                                             "Magenta":  "={{ $json.tonerMagenta }}",
+                                                                                             "Yellow":  "={{ $json.tonerYellow }}",
+                                                                                             "Received Date":  "={{ $json.receivedDateTime }}"
+                                                                                         },
+                                                                               "matchingColumns":  [
+
+                                                                                                   ],
+                                                                               "schema":  [
+                                                                                              {
+                                                                                                  "id":  "Customer Name",
+                                                                                                  "displayName":  "Customer Name",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "DeviceSN",
+                                                                                                  "displayName":  "DeviceSN",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "ModelName",
+                                                                                                  "displayName":  "ModelName",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "Black",
+                                                                                                  "displayName":  "Black",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "Cyan",
+                                                                                                  "displayName":  "Cyan",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "Magenta",
+                                                                                                  "displayName":  "Magenta",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "Yellow",
+                                                                                                  "displayName":  "Yellow",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              },
+                                                                                              {
+                                                                                                  "id":  "Received Date",
+                                                                                                  "displayName":  "Received Date",
+                                                                                                  "required":  false,
+                                                                                                  "defaultMatch":  false,
+                                                                                                  "display":  true,
+                                                                                                  "type":  "string",
+                                                                                                  "canBeUsedToMatch":  true
+                                                                                              }
+                                                                                          ],
+                                                                               "attemptToConvertTypes":  false,
+                                                                               "convertFieldsToString":  false
+                                                                           },
+                                                               "options":  {
+
+                                                                           }
+                                                           },
+                                            "id":  "f6a7b8c9-d0e1-2345-fabc-456789012345",
+                                            "name":  "Append to Google Sheet",
+                                            "type":  "n8n-nodes-base.googleSheets",
+                                            "typeVersion":  4.5,
+                                            "position":  [
+                                                             656,
+                                                             144
+                                                         ],
+                                            "credentials":  {
+                                                                "googleSheetsOAuth2Api":  {
+                                                                                              "id":  "loJRZCgV7GWnPpU8",
+                                                                                              "name":  "Google Sheets account"
+                                                                                          }
+                                                            }
+                                        },
+                                        {
+                                            "parameters":  {
+                                                               "method":  "PATCH",
+                                                               "url":  "=https://graph.microsoft.com/v1.0/users/rcompton@patriotgroup.com/messages/{{ $(\u0027Parse Email\u0027).item.json.emailId }}",
+                                                               "authentication":  "genericCredentialType",
+                                                               "genericAuthType":  "oAuth2Api",
+                                                               "sendBody":  true,
+                                                               "specifyBody":  "json",
+                                                               "jsonBody":  "{\n  \"isRead\": true\n}",
+                                                               "options":  {
+
+                                                                           }
+                                                           },
+                                            "id":  "a7b8c9d0-e1f2-3456-abcd-567890123456",
+                                            "name":  "Mark as Read",
+                                            "type":  "n8n-nodes-base.httpRequest",
+                                            "typeVersion":  4.2,
+                                            "position":  [
+                                                             880,
+                                                             144
+                                                         ],
+                                            "credentials":  {
+                                                                "oAuth2Api":  {
+                                                                                  "id":  "IvyhkVAwboJGDb4W",
+                                                                                  "name":  "m365-patriot-group"
+                                                                              }
+                                                            }
+                                        }
+                                    ],
+                          "connections":  {
+                                              "Every 5 Minutes":  {
+                                                                      "main":  [
+                                                                                   [
+                                                                                       {
+                                                                                           "node":  "Get Ricoh Emails",
+                                                                                           "type":  "main",
+                                                                                           "index":  0
+                                                                                       }
+                                                                                   ]
+                                                                               ]
+                                                                  },
+                                              "Get Ricoh Emails":  {
+                                                                       "main":  [
+                                                                                    [
+                                                                                        {
+                                                                                            "node":  "Has Emails?",
+                                                                                            "type":  "main",
+                                                                                            "index":  0
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                   },
+                                              "Has Emails?":  {
+                                                                  "main":  [
+                                                                               [
+                                                                                   {
+                                                                                       "node":  "Split Out Emails",
+                                                                                       "type":  "main",
+                                                                                       "index":  0
+                                                                                   }
+                                                                               ],
+                                                                               [
+
+                                                                               ]
+                                                                           ]
+                                                              },
+                                              "Split Out Emails":  {
+                                                                       "main":  [
+                                                                                    [
+                                                                                        {
+                                                                                            "node":  "Parse Email",
+                                                                                            "type":  "main",
+                                                                                            "index":  0
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                   },
+                                              "Parse Email":  {
+                                                                  "main":  [
+                                                                               [
+                                                                                   {
+                                                                                       "node":  "Append to Google Sheet",
+                                                                                       "type":  "main",
+                                                                                       "index":  0
+                                                                                   }
+                                                                               ]
+                                                                           ]
+                                                              },
+                                              "Append to Google Sheet":  {
+                                                                             "main":  [
+                                                                                          [
+                                                                                              {
+                                                                                                  "node":  "Mark as Read",
+                                                                                                  "type":  "main",
+                                                                                                  "index":  0
+                                                                                              }
+                                                                                          ]
+                                                                                      ]
+                                                                         }
+                                          },
+                          "nodeGroups":  [
+
+                                         ],
+                          "authors":  "Ralph Compton",
+                          "name":  "Version fc977c04",
+                          "description":  "Parses scalar values from emails and populates a google sheet.",
+                          "autosaved":  true,
+                          "workflowPublishHistory":  [
+                                                         {
+                                                             "createdAt":  "2026-06-26T15:50:22.745Z",
+                                                             "id":  47,
+                                                             "workflowId":  "xSBBcmS2bVyLIiRA",
+                                                             "versionId":  "fc977c04-fdbb-470f-bcc5-04289a40b894",
+                                                             "event":  "activated",
+                                                             "userId":  "13342864-5228-4314-a533-dbf1fbcaea1f"
+                                                         }
+                                                     ]
+                      }
+}
