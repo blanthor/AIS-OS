@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "statusMessage": "Scanning staged files for secrets...",
+            "timeout": 30,
+            "command": "$j = [Console]::In.ReadToEnd() | ConvertFrom-Json; if ($j.tool_input.command -notmatch 'git\\s+commit') { exit 0 }; $staged = git diff --cached --name-only 2>$null; if (-not $staged) { exit 0 }; $pats = @('sk-[a-zA-Z0-9]{20,}', 'AIza[0-9A-Za-z\\-_]{35}', '(?i)password\\s*=\\s*\\S+', '(?i)api[_\\-]?key\\s*=\\s*\\S+', 'Bearer\\s+[a-zA-Z0-9\\-._~+\\/]+=*', '[A-Z0-9]{20}:[A-Za-z0-9+\\/]{40}', '(?i)Server=[^;]+;.*Password='); $hits = @(); foreach ($f in $staged) { $c = git show \":$f\" 2>$null; foreach ($p in $pats) { if ($c -match $p) { $hits += $f; break } } }; if ($hits.Count -gt 0) { [Console]::Out.WriteLine((@{ continue = $false; stopReason = 'SECRET SCAN BLOCKED: Possible secrets in staged files: ' + ($hits -join ', ') + '. Review and remove before committing.' } | ConvertTo-Json -Compress)) }"
+          }
+        ]
+      }
+    ]
+  }
+}
