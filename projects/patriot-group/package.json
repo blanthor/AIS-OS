@@ -1,0 +1,19 @@
+{
+  "name": "patriot-group",
+  "version": "1.0.0",
+  "description": "**Status:** Active **Started:** 2026-06-08 **Goal:** [fill in — one sentence on what they're hiring you for]",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.0.1",
+    "dotenv": "^17.4.2"
+  }
+}

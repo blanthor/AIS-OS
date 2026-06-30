@@ -5,3 +5,10 @@ __pycache__/
 node_modules/
 credentials.json
 token.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
