@@ -13,6 +13,7 @@ Read `references/3ms-framework.md` once. It's how Ralph thinks about AI work. Mi
 - `/onboard` — already run if you're seeing this filled in. Re-run any time to refresh from an edited `aios-intake.md`.
 - `/audit` — Four-Cs gap report. Run on Day 7, then weekly. Watch your score climb.
 - `/level-up` — Weekly 3Ms interview. Find one automation, scope it, ship it. One per week.
+- `/session-handoff` — End-of-session context summary. Run before `/clear` to preserve decisions, shipped changes, key files, and open questions for a fresh agent.
 
 ## Where things live
 
@@ -65,3 +66,4 @@ See `connections.md` for the full registry.
 - When I make a decision, suggest logging it via the decisions log.
 - When you spot a manual task I'm doing 3+ times, surface it next time `/level-up` runs.
 - Default Shift: when I bring a new task, ask "to what extent could AI be leveraged here?" before assuming I'll do it the old way.
+- When I type `/clear`, ask first: "Want to run `/session-handoff` before clearing?" Do not run it automatically — wait for a yes.

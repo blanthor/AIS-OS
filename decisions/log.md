@@ -95,3 +95,26 @@ Keep it terse. Future-you will thank present-you for capturing the *why*, not ju
 **Working directory:** `C:\code\CodeExProjects\RuneGeld`
 
 ---
+
+## 2026-06-29 — Job opportunity sub-classifier in n8n
+
+**Decision:** Add a second Text Classify node to the existing n8n Job Opportunity workflow that sub-classifies each tagged email into one of four buckets: Review, Skip/Foreign, Skip/Location, or Not a Job Lead.
+
+**Why:** The existing classifier catches "is this a job email" but not "is this worth my time." Gmail shows ~201 Job Opportunity threads in 3 months (~15/week). Most are automated job alerts or foreign/onsite-outside-Houston recruiter emails. Ralph reads 5-8 recruiter emails/week to find 1-2 worth replying to. The sub-classifier reduces that to ~0-1 irrelevant reads before finding signal.
+
+**Process map:**
+- Trigger: Email tagged "Job Opportunity" by existing n8n classify node
+- Data source: Email subject + snippet (already extracted)
+- New transformation: Second Text Classify node → Review / Skip-Foreign / Skip-Location / Not-a-Job-Lead
+- Decision point: Skip → apply sub-label, suppress draft reply. Review → existing draft-reply behavior. Not a Job Lead → remove or re-label.
+- Destination: Gmail sub-labels
+
+**Autonomy level:** L2 — AI labels/sorts, Ralph makes every send/delete decision.
+
+**KPI:** Bucket 3 — less cost. Metric: irrelevant recruiter emails read before finding one worth replying to. Baseline: ~5-8/week. Target: 0-1/week.
+
+**Artifact:** `templates/job-opportunity-classifier-n8n.md`
+
+**Owner:** Ralph
+
+---
